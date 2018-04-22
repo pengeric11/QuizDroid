@@ -11,7 +11,6 @@ class MainActivity : AppCompatActivity() {
 
     private val options = arrayOf("Math", "Physics", "Marvel Super Heroes")
     private lateinit var lv: ListView
-    //private val descriptions = arrayOf("Nerd stuff", "Even nerdier stuff", "The nerdiest of them all")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
