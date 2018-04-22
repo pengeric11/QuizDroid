@@ -1,5 +1,6 @@
 package edu.washington.ericpeng.quizdroid
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.widget.Button
@@ -72,5 +73,14 @@ class TopicPage : AppCompatActivity() {
                 tv_info.text = "Total Questions: " + questions.size.toString()
             }
         }
+
+        btn.setOnClickListener({view ->
+            val intent = Intent(this, QuestionPage::class.java)
+            intent.putExtra("questions", questions)
+            startActivity(intent)
+            finish()
+        })
+
+
     }
 }
