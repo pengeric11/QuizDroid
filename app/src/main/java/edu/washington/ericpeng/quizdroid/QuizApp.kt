@@ -9,8 +9,6 @@ class QuizApp : Application() {
         fun create() : QuizApp = QuizApp()
     }
 
-    //private var instance : TopicRepository = TopicRepository.create()
-
     init {
         Log.d("QuizApp", "QuizApp Constructor")
     }
@@ -18,7 +16,6 @@ class QuizApp : Application() {
     override fun onCreate() {
         super.onCreate()
         Log.d("QuizApp", "QuizApp OnCreate Method")
-        //instance = TopicRepository().getInstance()
     }
 
     fun getInstance() : TopicRepository = TopicRepository.create()
