@@ -56,11 +56,21 @@ class QuestionFragment : Fragment() {
 
         tv.text = questions[num].question
 
-        for (item in questions[num].choices){
-            val rb = RadioButton(v.context)
-            rb.text = item
-            rg.addView(rb)
-        }
+        val rb1 = RadioButton(v.context)
+        rb1.text = questions[num].ans1
+        rg.addView(rb1)
+
+        val rb2 = RadioButton(v.context)
+        rb2.text = questions[num].ans2
+        rg.addView(rb2)
+
+        val rb3 = RadioButton(v.context)
+        rb3.text = questions[num].ans3
+        rg.addView(rb3)
+
+        val rb4 = RadioButton(v.context)
+        rb4.text = questions[num].ans4
+        rg.addView(rb4)
 
         var user = ""
 
@@ -68,7 +78,7 @@ class QuestionFragment : Fragment() {
 
             val rb : RadioButton = v.findViewById(isChecked)
 
-            if (rb.text.toString() == questions[num].answer)
+            if (rb.text.toString() == questions[num].getAnswers()[questions[num].correct - 1])
                 numCorrect += 1
 
             user = rb.text.toString()
@@ -79,7 +89,7 @@ class QuestionFragment : Fragment() {
             val fm = fragmentManager
             val ft = fm.beginTransaction()
             //ft.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left)
-            ft.replace(R.id.container, AnswerFragment.newInstance(user, questions[num].answer,
+            ft.replace(R.id.container, AnswerFragment.newInstance(user, questions[num].getAnswers()[questions[num].correct - 1],
                     numCorrect, questions, num))
             ft.commit()
         })
