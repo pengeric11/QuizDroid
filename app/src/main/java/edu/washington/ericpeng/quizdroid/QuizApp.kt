@@ -18,6 +18,6 @@ class QuizApp : Application() {
         Log.d("QuizApp", "QuizApp OnCreate Method")
     }
 
-    fun getInstance() : TopicRepository = TopicRepository.create()
+    fun getInstance() : TopicRepository = TopicRepository()
 
 }

@@ -1,60 +1,90 @@
 package edu.washington.ericpeng.quizdroid
 
-class TopicRepository {
+import android.os.AsyncTask
+import android.util.JsonReader
+import android.util.Log
+import org.json.JSONArray
+import org.json.JSONObject
+import java.io.*
+import java.net.HttpURLConnection
+import java.net.MalformedURLException
+import java.net.URL
+
+class TopicRepository : AsyncTask<String, String, String>{
 
     val topics = HashMap<String, Topic>()
-    //private val instance : TopicRepository = TopicRepository()
-    companion object {
-        fun create(): TopicRepository = TopicRepository().getInstance()
+    var url : String
+
+    constructor() {
+        this.url = "http://tednewardsandbox.site44.com/questions.json"
+        this.execute(this.url).get()
+        Log.i("REPO", "Constructor")
     }
 
-    fun getInstance() : TopicRepository {
+    constructor(url: String) {
+        this.url = url
+        this.execute(this.url).get()
+    }
 
-        val mQuestions : ArrayList<Question> = ArrayList()
+    override fun onPreExecute() {
+        super.onPreExecute()
+    }
 
-        mQuestions.add(Question("In the complex number system, which of the following is equal to\n" +
-                "(14 − 2i)(7 + 12i)?","74", "122", "74 + 154i", "122 + 154i", 3))
-        mQuestions.add(Question("Which of the following is a subset of  {b, c, d}", "{ }",
-                "{a}", "{1 , 2 , 3}", "{a, b, c}", 1))
-        mQuestions.add(Question("The value of 5 in the number 357.21 is",
-                "5 tenths", "5 ones", "5 tens", "5 hundreds", 3))
+    override fun doInBackground(vararg params: String?): String {
+        Log.i("REPO", "CONNECTION")
+        val connection = URL(url).openConnection() as HttpURLConnection
 
-        val math = Topic(mQuestions, "Math", "Numbers", "Lots of number, even more fun")
+        var text : String = ""
 
-        val pQuestions : ArrayList<Question> = ArrayList()
+        try {
+            connection.connect()
+            text = connection.inputStream.use { it.reader().use { reader -> reader.readText() } }
+        }
+        catch (e : IOException){
+            e.printStackTrace()
+        }
+        catch (e : MalformedURLException){
+            e.printStackTrace()
+        }
+        finally {
+            connection.disconnect()
+        }
 
-        pQuestions.add(Question("Which of the following is a physical quantity that has a magnitude but no direction?",
-                "Vector", "Frame of reference", "Resultant", "Scalar", 4))
-        pQuestions.add(Question("Multiplying or dividing vectors by scalars results in",
-                "Vectors if multiplied or scalars if divided",
-                "Scalars if multiplied scalars", "Scalars", "Vectors", 4))
-        pQuestions.add(Question("Which of the following is an example of a vector quantity?",
-                "Temperature", "Velocity", "Volume", "Mass", 2))
-        pQuestions.add(Question("For the winter, a duck flies 10.0 m/s due south against a " +
-                "gust of wind with a speed of 2.5 m/s. What is the resultant velocity of the duck?",
-                "-7.5 m/s south", "12.5 m/s south", "7.5 m/s south", "-12.5 m/s south", 3))
+        val json = JSONArray(text)
+        //val it : Iterator = json.
 
-        val physics = Topic(pQuestions, "Physics", "Gravity", "More than just gravity and Fig Newtons")
+        for (i in 0..(json.length() - 1)){
+            val item = json.getJSONObject(i)
 
-        val sQuestions : ArrayList<Question> = ArrayList()
+            val topic : String = item.getString("title")
+            val description : String = item.getString("desc")
 
-        sQuestions.add(Question("In what place was Christmas once illegal?",
-                "Brazil", "Russia", "England", "France", 3))
-        sQuestions.add(Question("In California, it is illegal to eat oranges while doing what?",
-                "Gardening", "Working on a computer", "Driving", "Bathing", 4))
-        sQuestions.add(Question("Coulrophobia means fear of what?",
-                "Clowns", " Old People", " Random Things\n", "Mass", 1))
-        sQuestions.add(Question("Which of the following is the longest running American animated TV show?",
-                "Rugrats", " TV Funhouse", "Pokemon", "Simpsons", 4))
-        sQuestions.add(Question("What are the odds of being killed by space debris?",
-                "1 in 5 million", "1 in 5 billion", "1 in 10 billion", "1 in 1 trillion", 2))
+            val questions = item.getJSONArray("questions")
 
-        val marvel = Topic(sQuestions, "Marvel Super Heroes", "Marvel", "Probably the funnest quiz you'll ever take")
+            val quiz : ArrayList<Question> = ArrayList()
 
-        topics.put("Math", math)
-        topics.put("Physics", physics)
-        topics.put("Marvel Super Heroes", marvel)
+            for (j in 0..(questions.length() - 1)){
+                val thing = questions.getJSONObject(j)
 
-        return this
+                val q : String = thing.getString("text")
+                val answer : Int = thing.getInt("answer")
+                val choice = thing.getJSONArray("answers")
+
+                val newQ = Question(q, choice.getString(0), choice.getString(1),
+                        choice.getString(2), choice.getString(3), answer)
+
+                quiz.add(newQ)
+            }
+
+            val t = Topic(quiz, topic, description, description)
+            topics.put(topic, t)
+        }
+
+        return text
+    }
+
+    override fun onPostExecute(result: String?) {
+        super.onPostExecute(result)
+        Log.i("Repo", "PostExecute")
     }
 }
